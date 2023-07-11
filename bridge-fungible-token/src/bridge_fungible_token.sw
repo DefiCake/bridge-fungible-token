@@ -129,7 +129,7 @@ impl FungibleBridge for Contract {
         storage.refund_amounts.get(originator).insert(asset, ZERO_B256);
 
         // send a message to unlock this amount on the base layer gateway contract
-        send_message(BRIDGED_TOKEN_GATEWAY, encode_data(originator, stored_amount, BRIDGED_TOKEN), 0);
+        send_message(BRIDGED_TOKEN_GATEWAY, encode_data(originator, stored_amount, asset), 0);
     }
 
     #[payable]
@@ -190,6 +190,7 @@ impl FRC20 for Contract {
 // Storage-dependant private functions
 #[storage(write)]
 fn register_refund(from: b256, asset: b256, amount: b256) {
+    amount = storage.refund_amounts.get(from).get(asset) + amount;
     storage.refund_amounts.get(from).insert(asset, amount);
     log(RefundRegisteredEvent {
         from,
